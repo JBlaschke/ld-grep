@@ -8,3 +8,4 @@ edition = "2021"
 [dependencies]
 regex="1.9.3"
 clap="4.2.1"
+libc = "0.2"

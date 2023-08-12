@@ -16,8 +16,8 @@ impl std::fmt::Display for CmdError {
 impl Error for CmdError {}
 
 
-fn run_cc() -> Result<String, Box<dyn Error>> {
-    let output = Command::new("cc")
+fn run_cc(cmd: &str) -> Result<String, Box<dyn Error>> {
+    let output = Command::new(cmd)
         .arg("--cray-print-opts=all")
         .output();
 
@@ -40,8 +40,8 @@ fn run_cc() -> Result<String, Box<dyn Error>> {
     }
 }
 
-pub fn cray_cc_libdirs() -> Result<Vec<String>, Box<dyn Error>> {
-    let cc_output = run_cc()?;
+pub fn cray_cc_libdirs(cmd: &str) -> Result<Vec<String>, Box<dyn Error>> {
+    let cc_output = run_cc(cmd)?;
 
     let parts: Vec<& str> =  cc_output.split_whitespace().collect();
     let mut libs: Vec<String> = Vec::new();

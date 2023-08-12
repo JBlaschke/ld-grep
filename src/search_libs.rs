@@ -6,7 +6,10 @@ use regex::Regex;
 use std::error::Error;
 
 
-pub fn get_libdirs(add_cray: bool) -> Result<Vec<String>, Box<dyn Error>> {
+pub fn get_libdirs(
+        add_cray: bool,
+        cmd: &str
+    ) -> Result<Vec<String>, Box<dyn Error>> {
 
     let ld_library_path = env::var("LD_LIBRARY_PATH").unwrap_or_default();
     let mut paths: Vec<String> = ld_library_path.split(":").map(
@@ -14,7 +17,7 @@ pub fn get_libdirs(add_cray: bool) -> Result<Vec<String>, Box<dyn Error>> {
     ).collect();
 
     if add_cray {
-        let cray_libdirs = cray_cc_libdirs()?;
+        let cray_libdirs = cray_cc_libdirs(cmd)?;
         paths.extend(cray_libdirs);
     }
 

@@ -17,7 +17,9 @@ impl Error for CmdError {}
 
 
 fn run_cc(cmd: &str) -> Result<String, Box<dyn Error>> {
-    let output = Command::new(cmd)
+    let cmd_args: Vec<&str> = cmd.split_ascii_whitespace().collect();
+    let output = Command::new(cmd_args[0])
+        .args(&cmd_args[1..])
         .arg("--cray-print-opts=all")
         .output();
 

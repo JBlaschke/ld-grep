@@ -6,20 +6,24 @@ use regex::Regex;
 use std::error::Error;
 
 
-pub fn get_libdirs() -> Result<Vec<String>, Box<dyn Error>> {
-    let cray_libdirs = cray_cc_libdirs()?;
+pub fn get_libdirs(add_cray: bool) -> Result<Vec<String>, Box<dyn Error>> {
 
     let ld_library_path = env::var("LD_LIBRARY_PATH").unwrap_or_default();
     let mut paths: Vec<String> = ld_library_path.split(":").map(
         |s| s.to_string()
     ).collect();
 
-    paths.extend(cray_libdirs);
+    if add_cray {
+        let cray_libdirs = cray_cc_libdirs()?;
+        paths.extend(cray_libdirs);
+    }
+
     Ok(paths)
 }
 
-pub fn find_all_libs(pattern: & str) -> Result<Vec<String>, Box<dyn Error>> {
-    let mut paths: Vec<String> = get_libdirs()?;
+pub fn filter_libs(
+        paths: Vec<String>, pattern: & str
+    ) -> Result<Vec<String>, Box<dyn Error>> {
 
     let regex = Regex::new(pattern).unwrap();
     let mut libs = Vec::new();

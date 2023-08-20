@@ -19,7 +19,7 @@ pub fn init() -> ArgMatches {
             .long("use-cray")
             .help("Interrogate Cray Compiler Wrappers for additional paths")
             .required(false)
-            .default_value("true")
+            .default_value("false")
             .value_parser(clap::builder::BoolishValueParser::new())
         )
         .arg(

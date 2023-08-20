@@ -1,6 +1,7 @@
 # ld-grep: A Cray-aware tool to grep the ld search path
 
-Find yourself asking: Where the heck is do we keep MKL? And why is the linker not finding it? This tool is here to help:
+Find yourself asking: Where the heck is do we keep MKL? And why is the linker
+not finding it? This tool is here to help:
 
 ```
 blaschke@perlmutter:login38:~> ld-grep --help
@@ -12,7 +13,7 @@ Arguments:
   <REGEX>  Regex to match against files in search paths
 
 Options:
-  -c, --use-cray <use_cray>  Interrogate Cray Compiler Wrappers for additional paths [default: true] [possible values: true, false]
+  -c, --use-cray <use_cray>  Interrogate Cray Compiler Wrappers for additional paths [default: false] [possible values: true, false]
       --cc-cmd <CC>          cray compiler wrapper command to check for libraries [default: cc]
   -h, --help                 Print help
   -V, --version              Print version
@@ -28,7 +29,9 @@ blaschke@perlmutter:login38:~> ld-grep mkl
 ...
 ```
 
-But wait! There's more! `ld-grep` analyses the Cray Compiler Wrapper to find additional library locations which are introduced by the compiler wrappers.
+But wait! There's more! `ld-grep` analyses the Cray Compiler Wrapper to find
+additional library locations which are introduced by the compiler wrappers.
 
 It does this by parsing `<cray-compiler-cmd> --cray-print-opts=all`.
-If you want to specify which compiler command (inlcuding options) to use here, set the `-cc-cmd=` flag.
+If you want to specify which compiler command (inlcuding options) to use here,
+set the `-cc-cmd=` flag.

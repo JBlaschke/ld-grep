@@ -30,6 +30,22 @@ pub fn init() -> ArgMatches {
             .default_value("cc")
             .required(false)
         )
+        .arg(
+            Arg::new("needs")
+            .long("needs")
+            .help("List libraries that need the input")
+            .required(false)
+            .default_value("false")
+            .value_parser(clap::builder::BoolishValueParser::new())
+        )
+        .arg(
+            Arg::new("provides")
+            .long("provides")
+            .help("List libraries that provide the input")
+            .required(false)
+            .default_value("false")
+            .value_parser(clap::builder::BoolishValueParser::new())
+        )
         .get_matches();
 
     return args;
@@ -39,7 +55,9 @@ pub fn init() -> ArgMatches {
 pub struct CLI<'a> {
     pub regex: &'a str,
     pub use_cray: bool,
-    pub cmd: &'a str
+    pub cmd: &'a str,
+    pub needs: bool,
+    pub provies: bool
 }
 
 
@@ -47,10 +65,14 @@ pub fn parse<'a>(args: &'a ArgMatches) -> CLI<'a> {
     let regex = args.get_one::<String>("regex").unwrap();
     let use_cray = args.get_one::<bool>("use_cray").unwrap();
     let cmd = args.get_one::<String>("cc_cmd").unwrap();
+    let needs = args.get_one::<bool>("needs").unwrap();
+    let provides = args.get_one::<bool>("provides").unwrap();
 
     CLI {
         regex: regex.as_str(),
         use_cray: * use_cray,
-        cmd: cmd.as_str()
+        cmd: cmd.as_str(),
+        needs: * needs,
+        provies: * provides
     }
 }

@@ -30,7 +30,7 @@ fn run_cc(cmd: &str) -> Result<String, Box<dyn Error>> {
                 return Ok(stdout.to_string());
             } else {
                 let stderr = String::from_utf8_lossy(&output.stderr);
-                let error = CmdError{
+                let error = CmdError {
                     message: stderr.to_string()
                 };
                 return Err(Box::new(error));

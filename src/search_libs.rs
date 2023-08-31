@@ -25,7 +25,7 @@ pub fn get_libdirs(
 }
 
 pub fn filter_libs(
-        paths: Vec<String>, pattern: & str
+        paths: & Vec<String>, pattern: & str
     ) -> Result<Vec<String>, Box<dyn Error>> {
 
     let regex = Regex::new(pattern).unwrap();
@@ -37,7 +37,7 @@ pub fn filter_libs(
                 if let Ok(entry) = entry {
                     let entry_path = entry.path();
                     if ! entry_path.is_file() { continue; }
-                    if regex.is_match(entry_path.to_str().unwrap_or("")) {
+                    if regex.is_match(entry_path.to_str().unwrap()) {
                         libs.push(entry_path.to_string_lossy().into_owned());
                     }
                 }

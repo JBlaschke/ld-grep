@@ -13,7 +13,7 @@ struct ELFError {
 
 impl std::fmt::Display for ELFError {
     fn fmt(& self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        write!(f, "CmdError {}", self.message)
+        write!(f, "ELFError {}", self.message)
     }
 }
 
@@ -23,11 +23,12 @@ impl Error for ELFError {}
 #[derive(Debug)]
 pub struct DynSymbol {
     pub value: u64,
+    pub is_import: bool,
     pub bind: u8,
     pub typ: u8,
     pub vis: u8,
     pub name: String,
-    pub debug: bool
+    pub is_debug: bool
 }
 
 #[derive(Debug)]
@@ -51,22 +52,24 @@ fn list_elf_symbols(
     for sym in & elf.dynsyms {
         v.push(Symbol::Dynamic(DynSymbol {
             value: sym.st_value,
+            is_import: sym.is_import(),
             bind: sym.st_bind(),
             typ: sym.st_type(),
             vis: sym.st_visibility(),
             name: elf.dynstrtab.get_at(sym.st_name).unwrap().to_string(),
-            debug: false
+            is_debug: false
         }));
     };
 
     for sym in & elf.syms {
         v.push(Symbol::Dynamic(DynSymbol {
             value: sym.st_value,
+            is_import: sym.is_import(),
             bind: sym.st_bind(),
             typ: sym.st_type(),
             vis: sym.st_visibility(),
-            name: elf.dynstrtab.get_at(sym.st_name).unwrap_or("FAILED").to_string(),
-            debug: true
+            name: elf.dynstrtab.get_at(sym.st_name).unwrap_or("").to_string(),
+            is_debug: true
         }));
     };
 
@@ -104,7 +107,7 @@ pub fn list_symbols(
         },
         Object::Unknown(magic) => {
             let error = ELFError{
-                message: format!("Unknown magic: {:#x}", magic)
+                message: format!("Unknown magic: {:#x} in {}", magic, path)
             };
             return Err(Box::new(error))
         }

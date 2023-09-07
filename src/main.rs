@@ -41,17 +41,29 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
             Ok(output) => {
                 for lib in output {
-                    let symbols = list_symbols(& lib)?;
+                    let symbols = match list_symbols(& lib) {
+                        Ok(x) => x,
+                        Err(x) => {
+                            println!("Error when listing symbols. {}" , x);
+                            Vec::<Symbol>::new()
+                        }
+                    };
                     for s in filter_symbols(&symbols, cli.regex)? {
                         match s {
                             Symbol::Dynamic(sym) => {
+                                let mut prop_descr: Vec<String> = Vec::new();
+                                if sym.is_debug {
+                                    prop_descr.push("debug".to_string());
+                                }
+                                if sym.is_import {
+                                    prop_descr.push("import".to_string());
+                                }
                                 println!(
-                                    "{}: {} {} {} {} {}",
-                                    lib, sym.name,
+                                    "{:<6} {:<6} {:<6} {:<12} {:}: {:}",
                                     bind_to_str(sym.bind),
                                     type_to_str(sym.typ),
                                     visibility_to_str(sym.vis),
-                                    sym.debug
+                                    prop_descr.join(","), lib, sym.name,
                                 )
                             }
                             Symbol::Static(sym) => {

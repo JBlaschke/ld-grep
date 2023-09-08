@@ -11,6 +11,48 @@ use goblin::elf::sym::{bind_to_str, type_to_str, visibility_to_str};
 use libc::EXIT_FAILURE;
 
 
+fn fetch_symbols(lib: & String) -> Vec<Symbol> {
+    let symbols = match list_symbols(& lib) {
+        Ok(x) => x,
+        Err(x) => {
+            println!("Error when listing symbols. {}" , x);
+            Vec::<Symbol>::new()
+        }
+    };
+    return symbols;
+}
+
+
+fn display_symbol(lib: & String, s: & Symbol) {
+    match s {
+        Symbol::Dynamic(sym) => {
+            let mut prop_descr: Vec<String> = Vec::new();
+            if sym.is_debug {
+                prop_descr.push("debug".to_string());
+            }
+            if sym.is_import {
+                prop_descr.push("import".to_string());
+            } else {
+                prop_descr.push("define".to_string());
+            }
+            println!(
+                "{:<6} {:<6} {:<6} {:<12} {:}: {:}",
+                bind_to_str(sym.bind),
+                type_to_str(sym.typ),
+                visibility_to_str(sym.vis),
+                prop_descr.join(","), lib, sym.name,
+            )
+        }
+        Symbol::Static(sym) => {
+            println!(
+                "{}: {} {}",
+                lib, sym.member_name, sym.symbol_name
+            )
+        }
+    }
+}
+
+
 fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let args = init();
@@ -40,40 +82,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
             Ok(output) => {
                 for lib in output {
-                    let symbols = match list_symbols(& lib) {
-                        Ok(x) => x,
-                        Err(x) => {
-                            println!("Error when listing symbols. {}" , x);
-                            Vec::<Symbol>::new()
-                        }
-                    };
+                    let symbols = fetch_symbols(& lib);
                     for s in filter_symbols(&symbols, cli.regex)? {
-                        match s {
-                            Symbol::Dynamic(sym) => {
-                                let mut prop_descr: Vec<String> = Vec::new();
-                                if sym.is_debug {
-                                    prop_descr.push("debug".to_string());
-                                }
-                                if sym.is_import {
-                                    prop_descr.push("import".to_string());
-                                } else {
-                                    prop_descr.push("define".to_string());
-                                }
-                                println!(
-                                    "{:<6} {:<6} {:<6} {:<12} {:}: {:}",
-                                    bind_to_str(sym.bind),
-                                    type_to_str(sym.typ),
-                                    visibility_to_str(sym.vis),
-                                    prop_descr.join(","), lib, sym.name,
-                                )
-                            }
-                            Symbol::Static(sym) => {
-                                println!(
-                                    "{}: {} {}",
-                                    lib, sym.member_name, sym.symbol_name
-                                )
-                            }
-                        }
+                        display_symbol(& lib, s);
                     }
                 }
             }
@@ -88,7 +99,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
             Ok(output) => {
                 for lib in output {
-                    let symbols = list_symbols(& lib)?;
+                    let symbols = fetch_symbols(& lib);
+                    for s in filter_symbols(&symbols, cli.regex)? {
+                        display_symbol(& lib, s);
+                    }
                 }
             }
 

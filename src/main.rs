@@ -17,9 +17,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let cli = parse(& args);
 
     let paths: Vec<String> = get_libdirs(cli.use_cray, cli.cmd)?;
-    let look_for_symbols = cli.needs || cli.provies;
 
-    if !look_for_symbols {
+    if !cli.symbol {
         match filter_libs(& paths, cli.regex) {
 
             Ok(output) => {
@@ -57,6 +56,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                                 }
                                 if sym.is_import {
                                     prop_descr.push("import".to_string());
+                                } else {
+                                    prop_descr.push("define".to_string());
                                 }
                                 println!(
                                     "{:<6} {:<6} {:<6} {:<12} {:}: {:}",

@@ -1,11 +1,12 @@
 use clap::{Arg, Command, ArgMatches};
 
+use crate::search_libs::get_libdirs;
 
 pub fn init() -> ArgMatches {
     let args = Command::new("LD Grep")
         .version("1.0")
         .author("Johannes Blaschke")
-        .about("Perform regex searches on LD_LIBRARY_PATH and other common library locations")
+        .about("Perform regex searches on LD_LIBRARY_PATH and other common library locations.")
         .arg(
             Arg::new("regex")
             .value_name("REGEX")
@@ -14,37 +15,20 @@ pub fn init() -> ArgMatches {
             .index(1)
         )
         .arg(
-            Arg::new("use_cray")
-            .short('c')
-            .long("use-cray")
-            .help("Interrogate Cray Compiler Wrappers for additional paths")
-            .required(false)
-            .default_value("false")
-            .value_parser(clap::builder::BoolishValueParser::new())
-        )
-        .arg(
             Arg::new("cc_cmd")
+            .short('c')
             .long("cc-cmd")
-            .help("cray compiler wrapper command to check for libraries")
+            .help("Interrogate Cray Compiler Wrappers for additional paths. CC = command to check for libraries")
             .value_name("CC")
-            .default_value("cc")
+            .default_value("")
             .required(false)
         )
         .arg(
-            Arg::new("needs")
-            .long("needs")
-            .help("List libraries that need the input")
-            .required(false)
-            .default_value("false")
-            .value_parser(clap::builder::BoolishValueParser::new())
-        )
-        .arg(
-            Arg::new("provides")
-            .long("provides")
-            .help("List libraries that provide the input")
-            .required(false)
-            .default_value("false")
-            .value_parser(clap::builder::BoolishValueParser::new())
+            Arg::new("symbol")
+            .short('s')
+            .long("symbol")
+            .help("List libraries that define or import the symbol")
+            .num_args(0)
         )
         .get_matches();
 
@@ -56,23 +40,20 @@ pub struct CLI<'a> {
     pub regex: &'a str,
     pub use_cray: bool,
     pub cmd: &'a str,
-    pub needs: bool,
-    pub provies: bool
+    pub symbol: bool
 }
 
 
 pub fn parse<'a>(args: &'a ArgMatches) -> CLI<'a> {
     let regex = args.get_one::<String>("regex").unwrap();
-    let use_cray = args.get_one::<bool>("use_cray").unwrap();
     let cmd = args.get_one::<String>("cc_cmd").unwrap();
-    let needs = args.get_one::<bool>("needs").unwrap();
-    let provides = args.get_one::<bool>("provides").unwrap();
+    let symbol = args.get_one::<bool>("symbol").unwrap();
 
+    let cmd_str = cmd.as_str();
     CLI {
         regex: regex.as_str(),
-        use_cray: * use_cray,
-        cmd: cmd.as_str(),
-        needs: * needs,
-        provies: * provides
+        use_cray: cmd_str != "",
+        cmd: cmd_str,
+        symbol: * symbol
     }
 }

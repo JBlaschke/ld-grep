@@ -28,7 +28,7 @@ Options:
 `ld-grep` searches the same locations as `ld.so.conf`, the `LD_LIBRARY_PATH`,
 and the search paths from the Cray compiler wrappers. By default the Cray
 compiler wrappers are not checked unless you specify the `-c` or `-cc-cmd` flag
-(cf. below).
+(cf. [below](#cray-compiler-wrappers)).
 
 The `-i` or `--info` flag will print out the search paths. E.g.:
 

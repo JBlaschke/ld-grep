@@ -1,6 +1,5 @@
 use clap::{Arg, Command, ArgMatches};
 
-use crate::search_libs::get_libdirs;
 
 pub fn init() -> ArgMatches {
     let args = Command::new("LD Grep")
@@ -11,7 +10,7 @@ pub fn init() -> ArgMatches {
             Arg::new("regex")
             .value_name("REGEX")
             .help("Regex to match against files in search paths")
-            .required(true)
+            .required_unless_present("info")
             .index(1)
         )
         .arg(
@@ -30,6 +29,13 @@ pub fn init() -> ArgMatches {
             .help("List libraries that define or import the symbol")
             .num_args(0)
         )
+        .arg(
+            Arg::new("info")
+            .short('i')
+            .long("info")
+            .help("List all locations that are searched")
+            .num_args(0)
+        )
         .get_matches();
 
     return args;
@@ -37,23 +43,26 @@ pub fn init() -> ArgMatches {
 
 
 pub struct CLI<'a> {
-    pub regex: &'a str,
+    pub regex: Option<&'a String>,
     pub use_cray: bool,
     pub cmd: &'a str,
-    pub symbol: bool
+    pub symbol: bool,
+    pub info: bool
 }
 
 
 pub fn parse<'a>(args: &'a ArgMatches) -> CLI<'a> {
-    let regex = args.get_one::<String>("regex").unwrap();
+    let regex = args.get_one::<String>("regex");
     let cmd = args.get_one::<String>("cc_cmd").unwrap();
     let symbol = args.get_one::<bool>("symbol").unwrap();
+    let info = args.get_one::<bool>("info").unwrap();
 
     let cmd_str = cmd.as_str();
     CLI {
-        regex: regex.as_str(),
+        regex: regex,
         use_cray: cmd_str != "",
         cmd: cmd_str,
-        symbol: * symbol
+        symbol: * symbol,
+        info: * info
     }
 }

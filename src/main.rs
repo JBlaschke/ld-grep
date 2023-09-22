@@ -8,7 +8,7 @@ use crate::cli::{init, parse};
 use crate::symbols::{Symbol, list_symbols, filter_symbols};
 use goblin::elf::sym::{bind_to_str, type_to_str, visibility_to_str};
 
-use libc::EXIT_FAILURE;
+use libc::{EXIT_FAILURE, EXIT_SUCCESS};
 
 
 fn fetch_symbols(lib: & String) -> Vec<Symbol> {
@@ -60,8 +60,36 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let paths: Vec<String> = get_libdirs(cli.use_cray, cli.cmd)?;
 
+    // Regexes to be used to find .so and .a files
+    let so_files = "^.*\\.so[0-9\\.]*$";
+    let  a_files = "^.*\\.a[0-9\\.]*$"; 
+
+    if cli.info {
+        println!("LD-GREP is searching for libraries (and symbols thereing) here: ");
+        for (i, dir) in paths.iter().enumerate() {
+            println!("    {}. {}", i, dir);
+        }
+        match filter_libs(& paths, so_files) {
+            Ok(output) => {
+                println!("Found {} dynamically-linked libaries.", output.len());
+            }
+            _ => {}
+        }
+        match filter_libs(& paths, a_files) {
+            Ok(output) => {
+                println!("Found {} statically-linked libaries.", output.len());
+            }
+            _ => {}
+        }
+        std::process::exit(EXIT_SUCCESS);
+    }
+
+    // Regex is required from this point onwards. CLAP guards against the
+    // improper omission of the regex argument.
+    let regex: & String = cli.regex.unwrap();
+
     if !cli.symbol {
-        match filter_libs(& paths, cli.regex) {
+        match filter_libs(& paths, regex) {
 
             Ok(output) => {
                 for lib in output {
@@ -75,15 +103,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             }
         }
     } else {
-        let so_files = "^.*\\.so[0-9\\.]*$";
-        let  a_files = "^.*\\.a[0-9\\.]*$"; 
-
         match filter_libs(& paths, so_files) {
 
             Ok(output) => {
                 for lib in output {
                     let symbols = fetch_symbols(& lib);
-                    for s in filter_symbols(&symbols, cli.regex)? {
+                    for s in filter_symbols(&symbols, regex)? {
                         display_symbol(& lib, s);
                     }
                 }
@@ -100,7 +125,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             Ok(output) => {
                 for lib in output {
                     let symbols = fetch_symbols(& lib);
-                    for s in filter_symbols(&symbols, cli.regex)? {
+                    for s in filter_symbols(&symbols, regex)? {
                         display_symbol(& lib, s);
                     }
                 }

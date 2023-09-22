@@ -19,7 +19,7 @@ pub fn init() -> ArgMatches {
             .long("cc-cmd")
             .help("Interrogate Cray Compiler Wrappers for additional paths. CC = command to check for libraries")
             .value_name("CC")
-            .default_value("")
+            .default_value("cc")
             .required(false)
         )
         .arg(

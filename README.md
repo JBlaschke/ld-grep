@@ -203,7 +203,7 @@ Found 158 statically-linked libaries.
 ```
 
 Which can be helpful when trying to find libraries only used by the compiler
-wrappers (discussed above).
+wrappers ([discussed above](#find-the-location-of-a-library-used-by-the-cray-compiler-wrappers-but-not-included-in-ld_library_path)).
 
 ## Common Issues
 
